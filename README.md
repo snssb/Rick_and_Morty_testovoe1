@@ -1,16 +1,5 @@
 # testovoe1
 
-A new Flutter project.
+(Тестовое задание "Список персонажей Рика и Морти")[https://docs.google.com/document/d/14scOu3E7O62QoDIbBoSRxN74y5TvFDK7U0TWB2UrUzU/edit?usp=sharing]
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+https://github.com/user-attachments/assets/fc6d0a66-6646-4631-a0af-cddc85ee0c12
