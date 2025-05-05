@@ -31,18 +31,22 @@ class _CharactersScreenState extends State<CharactersScreen> {
     if (bloc.state.characters.isEmpty) {
       bloc.add(const FetchCharacters(1));
     }
-    _scrollController.addListener(() {
-      if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent * 0.8 &&
-          !bloc.state.isLoading &&
-          bloc.state.hasNextPage) {
-        final nextPage = bloc.state.currentPage + 1;
-        bloc.add(FetchCharacters(nextPage));
-      }
-    });
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    final bloc = context.read<CharactersBloc>();
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent * 0.8 &&
+        !bloc.state.isLoading &&
+        bloc.state.hasNextPage) {
+      final nextPage = bloc.state.currentPage + 1;
+      bloc.add(FetchCharacters(nextPage));
+    }
   }
 
   @override
   void dispose() {
+    _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     super.dispose();
   }
@@ -65,15 +69,15 @@ class _CharactersScreenState extends State<CharactersScreen> {
             return const Center(child: Text('No characters available.'));
           }
 
-          final nonFavoriteCharacters = state.characters.where((character) => !character.isFavorite).toList();
+          final characters = state.characters;
           return ListView.builder(
             controller: _scrollController,
-            itemCount: nonFavoriteCharacters.length + (state.hasNextPage ? 1 : 0),
+            itemCount: characters.length + (state.hasNextPage ? 1 : 0),
             itemBuilder: (context, index) {
-              if (index == nonFavoriteCharacters.length && state.hasNextPage) {
+              if (index == characters.length && state.hasNextPage) {
                 return const Center(child: CircularProgressIndicator());
               }
-              final character = nonFavoriteCharacters[index];
+              final character = characters[index];
               return CharacterCardWidget(character: character, key: ValueKey(character.id));
             },
           );

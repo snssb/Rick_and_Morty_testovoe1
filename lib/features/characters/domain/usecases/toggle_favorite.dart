@@ -1,7 +1,7 @@
-import 'package:testovoe1/features/characters/domain/repositories/character_repository.dart';
+import 'package:testovoe1/features/characters/domain/repositories/favorite_repository.dart';
 
 class ToggleFavorite {
-  final CharacterRepository repository;
+  final FavoriteRepository repository;
 
   ToggleFavorite(this.repository);
 

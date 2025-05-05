@@ -6,7 +6,9 @@ import 'package:testovoe1/core/network/network_info.dart';
 import 'package:testovoe1/features/characters/data/datasources/character_local_datasource.dart';
 import 'package:testovoe1/features/characters/data/datasources/character_remote_datasource.dart';
 import 'package:testovoe1/features/characters/data/repositories.dart/character_repository_impl.dart';
+import 'package:testovoe1/features/characters/data/repositories.dart/favorite_repository_impl.dart';
 import 'package:testovoe1/features/characters/domain/repositories/character_repository.dart';
+import 'package:testovoe1/features/characters/domain/repositories/favorite_repository.dart';
 import 'package:testovoe1/features/characters/domain/usecases/get_characters.dart';
 import 'package:testovoe1/features/characters/domain/usecases/get_favorites.dart';
 import 'package:testovoe1/features/characters/domain/usecases/toggle_favorite.dart';
@@ -33,14 +35,17 @@ Future<void> configureDependencies(Isar isar) async {
       networkInfo: sl<NetworkInfo>(),
     ),
   );
+  sl.registerLazySingleton<FavoriteRepository>(
+    () => FavoriteRepositoryImpl(localDataSource: sl<CharacterLocalDataSource>()),
+  );
 
   // Domain
   sl.registerLazySingleton<GetCharacters>(() => GetCharacters(sl<CharacterRepository>()));
-  sl.registerLazySingleton<ToggleFavorite>(() => ToggleFavorite(sl<CharacterRepository>()));
-  sl.registerLazySingleton<GetFavorites>(() => GetFavorites(sl<CharacterRepository>()));
+  sl.registerLazySingleton<ToggleFavorite>(() => ToggleFavorite(sl<FavoriteRepository>()));
+  sl.registerLazySingleton<GetFavorites>(() => GetFavorites(sl<FavoriteRepository>()));
 
   // Presentation
-  sl.registerFactory<CharactersBloc>(
+  sl.registerLazySingleton<CharactersBloc>(
     () => CharactersBloc(
       getCharacters: sl<GetCharacters>(),
       toggleFavorite: sl<ToggleFavorite>(),

@@ -2,7 +2,6 @@ import 'package:testovoe1/core/network/network_info.dart';
 import 'package:testovoe1/features/characters/data/datasources/character_local_datasource.dart';
 import 'package:testovoe1/features/characters/data/datasources/character_remote_datasource.dart';
 import 'package:testovoe1/features/characters/data/models/character_model.dart';
-import 'package:testovoe1/features/characters/domain/entities/character_entity.dart';
 import 'package:testovoe1/features/characters/domain/repositories/character_repository.dart';
 
 class CharacterRepositoryImpl implements CharacterRepository {
@@ -33,16 +32,5 @@ class CharacterRepositoryImpl implements CharacterRepository {
         'info': {'next': null},
       };
     }
-  }
-
-  @override
-  Future<void> toggleFavorite(int id) async {
-    await localDataSource.toggleFavorite(id);
-  }
-
-  @override
-  Future<List<CharacterEntity>> getFavorites() async {
-    final favorites = await localDataSource.getFavorites();
-    return favorites.map((model) => model.toEntity()).toList();
   }
 }

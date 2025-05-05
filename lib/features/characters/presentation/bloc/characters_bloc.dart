@@ -29,7 +29,16 @@ class CharactersBloc extends Bloc<CharactersEvent, CharactersState> {
       final info = result['info'] as Map<String, dynamic>;
       final hasNextPage = info['next'] != null;
 
-      final updatedCharacters = event.page == 1 ? newCharacters : [...state.characters, ...newCharacters];
+      final favorites = await getFavorites();
+      final favoriteIds = favorites.map((f) => f.id).toSet();
+      final syncedCharacters =
+          newCharacters.map((character) {
+            return character.copyWith(isFavorite: favoriteIds.contains(character.id));
+          }).toList();
+
+      final nonFavoriteCharacters = syncedCharacters.where((character) => !character.isFavorite).toList();
+      final updatedCharacters =
+          event.page == 1 ? nonFavoriteCharacters : [...state.characters, ...nonFavoriteCharacters];
 
       emit(
         state.copyWith(
@@ -37,6 +46,7 @@ class CharactersBloc extends Bloc<CharactersEvent, CharactersState> {
           isLoading: false,
           hasNextPage: hasNextPage,
           currentPage: event.page,
+          favorites: favorites,
         ),
       );
     } catch (e) {
@@ -48,19 +58,33 @@ class CharactersBloc extends Bloc<CharactersEvent, CharactersState> {
     try {
       await toggleFavorite(event.characterId);
 
-      final updatedCharacters =
-          state.characters.map((character) {
-            if (character.id == event.characterId) {
-              final newFavoriteStatus = !character.isFavorite;
-              return character.copyWith(isFavorite: newFavoriteStatus);
-            }
-            return character;
-          }).toList();
+      CharacterEntity? toggledCharacter = state.characters.firstWhere(
+        (c) => c.id == event.characterId,
+        orElse:
+            () => state.favorites.firstWhere(
+              (c) => c.id == event.characterId,
+              orElse: () => throw Exception('Character not found'),
+            ),
+      );
 
-      final updatedFavorites =
-          updatedCharacters.where((character) => character.isFavorite).toList()
-            ..sort((a, b) => a.name.compareTo(b.name));
-      ;
+      final newFavoriteStatus = !toggledCharacter.isFavorite;
+      toggledCharacter = toggledCharacter.copyWith(isFavorite: newFavoriteStatus);
+
+      final updatedCharacters = [...state.characters];
+      if (newFavoriteStatus) {
+        updatedCharacters.removeWhere((c) => c.id == event.characterId);
+      } else {
+        updatedCharacters.add(toggledCharacter);
+        updatedCharacters.sort((a, b) => a.id.compareTo(b.id));
+      }
+
+      final updatedFavorites = [...state.favorites];
+      if (newFavoriteStatus) {
+        updatedFavorites.add(toggledCharacter);
+        updatedFavorites.sort((a, b) => a.name.compareTo(b.name));
+      } else {
+        updatedFavorites.removeWhere((c) => c.id == event.characterId);
+      }
 
       emit(state.copyWith(characters: updatedCharacters, favorites: updatedFavorites));
     } catch (e) {
